@@ -7,7 +7,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { Observer } from "gsap/all";
 import useIsMobile from "@/hooks/useIsMobile";
-import Heading from "../common/typography/Heading";
+// import Heading from "../common/typography/Heading";
 import Pera from "../common/typography/Pera";
 import ViewMore from "../common/Buttons/ViewMore";
 
@@ -16,7 +16,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(Observer);
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// ─── Data ─────
 
 interface Project {
   title: string;
@@ -102,17 +102,15 @@ const PROJECTS: Project[] = [
 
 export { PROJECTS };
 
-// ─── Internal Components ─────────────────────────────────────────────────────
+// ─── Internal Components ──────
 
 function ProjectGallery({ images, isActive, onIndexChange }: { images: string[]; isActive: boolean; onIndexChange?: (index: number) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
   const isSlider = images.length > 1;
-  // Reset to 0 when project changes (optional, but cleaner)
   useEffect(() => {
     if (!isActive) {
-      // Small timeout to not jump while fading out
       const t = setTimeout(() => setCurrentIndex(0), 600);
       return () => clearTimeout(t);
     }
@@ -234,13 +232,13 @@ function ProjectGallery({ images, isActive, onIndexChange }: { images: string[];
   );
 }
 
-// ─── Props ───────────────────────────────────────────────────────────────────
+// ─── Props 
 
 interface ProjectSectionProps {
   projectRef: React.RefObject<HTMLElement | null>;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Component 
 
 export default function ProjectSection({ projectRef }: ProjectSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -297,19 +295,28 @@ export default function ProjectSection({ projectRef }: ProjectSectionProps) {
                 priority={i === 0}
               />
               {/* Luxury Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20" />
+              {/* <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20" /> */}
             </div>
           </div>
         ))}
 
         {/* ── Project Card - Right Aligned ── */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 right-[5%]
-                     bg-white/95 backdrop-blur-md
-                     w-[400px]
-                     max-h-[65vh]
-                     shadow-2xl z-[10] will-change-transform
-                     border rounded-[5px] border-white/20"
+          className="
+           relative lg:absolute
+           lg:top-1/2 lg:-translate-y-1/2
+           lg:right-[5%]
+           mx-auto lg:mx-0
+           mt-10 lg:mt-0
+           w-[92%] 
+           max-w-[400px] 
+           md:max-w-[400px] 
+           xl:max-w-[400px]
+           max-h-[85vh]
+           bg-white/95 backdrop-blur-md
+           shadow-2xl z-[10]
+           border rounded-[8px] border-white/20
+           "
         >
           {/* Card Inner Container */}
           <div className="h-full flex flex-col p-2 ">
@@ -317,7 +324,7 @@ export default function ProjectSection({ projectRef }: ProjectSectionProps) {
               {PROJECTS.map((project, i) => (
                 <div
                   key={`gallery-${i}`}
-                  className={`absolute inset-0 duration-200 ease-in-out ${activeIndex === i ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                  className={`absolute inset-0 ${activeIndex === i ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                     }`}
                   style={{ zIndex: activeIndex === i ? 10 : 0 }}
                 >
@@ -381,9 +388,9 @@ export function createProjectObserver(
   const section = projectRef.current;
   if (!section) return null;
 
-  // ─────────────────────────────────────────────
+  // ─────────────
   // Query elements
-  // ─────────────────────────────────────────────
+  // ─────────────
   const bgLayers: HTMLElement[] = [];
   const clipContainers: HTMLElement[] = [];
   const titleWraps: HTMLElement[] = [];
@@ -403,9 +410,9 @@ export function createProjectObserver(
     if (descWrap) descWraps.push(descWrap);
   });
 
-  // ─────────────────────────────────────────────
+  // ─────────────
   // Initial states
-  // ─────────────────────────────────────────────
+  // ─────────────
   // First project fully visible
   if (clipContainers[0]) {
     gsap.set(clipContainers[0], {
@@ -435,9 +442,9 @@ export function createProjectObserver(
     })
   );
 
-  // ─────────────────────────────────────────────
+  // ─────────────
   // Animation state
-  // ─────────────────────────────────────────────
+  // ─────────────
   let currentIndex = 0;
   let isAnimating = false;
 
@@ -451,9 +458,9 @@ export function createProjectObserver(
   // Fire initial event
   dispatchIndex(0);
 
-  // ─────────────────────────────────────────────
+  // ─────────────
   // Transition animation
-  // ─────────────────────────────────────────────
+  // ─────────────
   function goToProject(nextIndex: number) {
     if (isAnimating) return;
     if (nextIndex < 0 || nextIndex >= PROJECTS.length) return;
@@ -537,9 +544,9 @@ export function createProjectObserver(
     }
   }
 
-  // ─────────────────────────────────────────────
+  // ─────────────
   // GSAP Observer — smooth scroll hijack
-  // ─────────────────────────────────────────────
+  // ─────────────
   const observer = Observer.create({
     target: section,
     type: "wheel,touch,pointer",
@@ -620,13 +627,23 @@ export function createProjectTimeline(
     const label = `project_${i}`;
     scrollTL.addLabel(label);
 
-    scrollTL.call(
-      () => {
-        window.dispatchEvent(
-          new CustomEvent("project-active-change", { detail: i })
-        );
+    // Use a dummy tween to detect direction
+    scrollTL.to(
+      {},
+      {
+        duration: 0.05,
+        onStart: () => {
+          window.dispatchEvent(
+            new CustomEvent("project-active-change", { detail: i })
+          );
+        },
+        onReverseComplete: () => {
+          const prevIndex = i > 0 ? i - 1 : 0;
+          window.dispatchEvent(
+            new CustomEvent("project-active-change", { detail: prevIndex })
+          );
+        },
       },
-      undefined,
       label
     );
 
