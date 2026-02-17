@@ -324,8 +324,8 @@ export default function ProjectSection({ projectRef }: ProjectSectionProps) {
               {PROJECTS.map((project, i) => (
                 <div
                   key={`gallery-${i}`}
-                  className={`absolute inset-0 ${activeIndex === i ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                    }`}
+                  data-project-gallery-wrap={i}
+                  className="absolute inset-0"
                   style={{ zIndex: activeIndex === i ? 10 : 0 }}
                 >
                   <ProjectGallery
@@ -586,6 +586,7 @@ export function createProjectTimeline(
   const clipContainers: HTMLElement[] = [];
   const titleWraps: HTMLElement[] = [];
   const descWraps: HTMLElement[] = [];
+  const galleryWraps: HTMLElement[] = [];
 
   PROJECTS.forEach((_, i) => {
     const layer = section.querySelector(`[data-bg-layer="${i}"]`) as HTMLElement | null;
@@ -596,9 +597,11 @@ export function createProjectTimeline(
 
     const titleWrap = section.querySelector(`[data-project-title-wrap="${i}"]`) as HTMLElement | null;
     const descWrap = section.querySelector(`[data-project-desc-wrap="${i}"]`) as HTMLElement | null;
+    const galleryWrap = section.querySelector(`[data-project-gallery-wrap="${i}"]`) as HTMLElement | null;
 
     if (titleWrap) titleWraps.push(titleWrap);
     if (descWrap) descWraps.push(descWrap);
+    if (galleryWrap) galleryWraps.push(galleryWrap);
   });
 
   if (clipContainers[0]) {
@@ -619,6 +622,10 @@ export function createProjectTimeline(
     gsap.set(el, { autoAlpha: i === 0 ? 1 : 0, y: i === 0 ? 0 : 40 })
   );
 
+  galleryWraps.forEach((el, i) =>
+    gsap.set(el, { autoAlpha: i === 0 ? 1 : 0 })
+  );
+
   const HOLD = 0.3;
   const REVEAL_DURATION = 0.5;
   const TEXT_DURATION = 0.3;
@@ -627,7 +634,6 @@ export function createProjectTimeline(
     const label = `project_${i}`;
     scrollTL.addLabel(label);
 
-    // Use a dummy tween to detect direction
     scrollTL.to(
       {},
       {
@@ -665,7 +671,7 @@ export function createProjectTimeline(
     }
 
     scrollTL.to(
-      [titleWraps[i - 1], descWraps[i - 1]],
+      [titleWraps[i - 1], descWraps[i - 1], galleryWraps[i - 1]],
       {
         autoAlpha: 0,
         y: -40,
@@ -676,7 +682,7 @@ export function createProjectTimeline(
     );
 
     scrollTL.to(
-      [titleWraps[i], descWraps[i]],
+      [titleWraps[i], descWraps[i], galleryWraps[i]],
       {
         autoAlpha: 1,
         y: 0,
