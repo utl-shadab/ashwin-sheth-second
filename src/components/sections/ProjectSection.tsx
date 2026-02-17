@@ -671,7 +671,7 @@ export function createProjectTimeline(
     }
 
     scrollTL.to(
-      [titleWraps[i - 1], descWraps[i - 1], galleryWraps[i - 1]],
+      [titleWraps[i - 1], descWraps[i - 1]],
       {
         autoAlpha: 0,
         y: -40,
